@@ -1,5 +1,0 @@
-web: gunicorn backend:app
-flask==2.3.3
-flask-cors==4.0.0
-opencv-python-headless==4.8.1.78
-gunicorn==21.2.0
