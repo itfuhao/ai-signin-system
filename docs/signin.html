@@ -5,7 +5,121 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        /* 保留原样式，新增摄像头容器样式 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+        }
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #050816 0%, #111827 100%);
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        /* 粒子背景（保留动态交互） */
+        #particles-js {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            opacity: 0.9;
+        }
+        /* AI能量核心装饰 */
+        .ai-core {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            z-index: 0;
+        }
+        .core-1 {
+            top: 20%;
+            left: 20%;
+            width: 380px;
+            height: 380px;
+            background: radial-gradient(circle, rgba(74, 222, 128, 0.3) 0%, transparent 75%);
+        }
+        .core-2 {
+            bottom: 25%;
+            right: 18%;
+            width: 330px;
+            height: 330px;
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.2) 0%, transparent 75%);
+        }
+        /* 签到卡片（3D毛玻璃+hover上浮） */
+        .signin-container {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 500px;
+            padding: 70px 40px;
+            background: rgba(17, 24, 39, 0.85);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(74, 222, 128, 0.2);
+            border-radius: 32px;
+            box-shadow: 0 0 80px rgba(74, 222, 128, 0.15);
+            text-align: center;
+            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+        .signin-container:hover {
+            box-shadow: 0 0 100px rgba(74, 222, 128, 0.25);
+            transform: translateY(-8px);
+        }
+        /* 成功图标（呼吸光效） */
+        .success-icon {
+            width: 180px;
+            height: 180px;
+            margin: 0 auto 40px;
+            position: relative;
+        }
+        .icon-circle {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #4ade80, #22c55e);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 0 50px rgba(74, 222, 128, 0.6), 0 0 25px rgba(34, 197, 94, 0.4);
+            animation: iconPulse 2s infinite alternate;
+        }
+        .check-icon {
+            color: white;
+            font-size: 90px;
+            z-index: 1;
+        }
+        .icon-glow {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 150%;
+            height: 150%;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(74, 222, 128, 0.6) 0%, transparent 80%);
+            animation: iconGlow 3s infinite alternate;
+        }
+        /* 标题样式 */
+        .signin-title {
+            color: white;
+            font-size: 40px;
+            margin-bottom: 15px;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+        .signin-desc {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 18px;
+            margin-bottom: 30px;
+            line-height: 1.6;
+            letter-spacing: 0.5px;
+        }
+        /* 摄像头容器（霓虹边框） */
         .camera-container {
             width: 100%;
             max-width: 400px;
@@ -23,11 +137,13 @@
         #canvas {
             display: none;
         }
+        /* 人脸操作按钮（hover光效） */
         .face-btn-group {
             display: flex;
             justify-content: center;
             gap: 20px;
             margin-bottom: 30px;
+            flex-wrap: wrap;
         }
         .face-btn {
             padding: 15px 30px;
@@ -38,12 +154,80 @@
             font-size: 17px;
             cursor: pointer;
             transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(59, 130, 246, 0.2);
         }
         .face-btn:hover {
             transform: translateY(-4px);
             box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
         }
-        /* 其他样式保留不变 */
+        /* 功能按钮（上浮效果） */
+        .btn-group {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .signin-btn {
+            padding: 18px 45px;
+            background: linear-gradient(135deg, #4ade80, #22c55e);
+            border: none;
+            border-radius: 16px;
+            color: #050816;
+            font-size: 19px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 30px rgba(74, 222, 128, 0.3);
+        }
+        .back-btn {
+            padding: 18px 45px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            color: white;
+            font-size: 19px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 30px rgba(0, 0, 0, 0.1);
+        }
+        .signin-btn:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 12px 40px rgba(74, 222, 128, 0.5);
+            background: linear-gradient(135deg, #34d399, #16a34a);
+        }
+        .back-btn:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+        /* 底部版权 */
+        .copyright {
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 14px;
+            text-align: center;
+            margin-top: 60px;
+            letter-spacing: 0.3px;
+        }
+        /* 核心动画（全部保留） */
+        @keyframes iconPulse {
+            0% { box-shadow: 0 0 40px rgba(74, 222, 128, 0.5), 0 0 20px rgba(34, 197, 94, 0.3); }
+            100% { box-shadow: 0 0 60px rgba(74, 222, 128, 0.7), 0 0 30px rgba(34, 197, 94, 0.5); }
+        }
+        @keyframes iconGlow {
+            0% { opacity: 0.5; transform: translate(-50%, -50%) scale(1); }
+            100% { opacity: 0.8; transform: translate(-50%, -50%) scale(1.2); }
+        }
+        /* 响应式适配 */
+        @media (max-width: 768px) {
+            .ai-core { display: none; }
+            .signin-container { margin: 0 25px; padding: 60px 30px; }
+            .success-icon { width: 150px; height: 150px; }
+            .check-icon { font-size: 75px; }
+            .signin-title { font-size: 32px; }
+            .face-btn, .signin-btn, .back-btn { padding: 14px 25px; font-size: 16px; }
+        }
     </style>
     <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.bootcdn.net/ajax/libs/particles.js/2.0.0/particles.min.js"></script>
@@ -56,7 +240,7 @@
     <div class="signin-container">
         <div class="success-icon">
             <div class="icon-circle">
-                <i class="fas fa-user-check check-icon"></i> <!-- 替换为人脸图标 -->
+                <i class="fas fa-user-check check-icon"></i>
             </div>
             <div class="icon-glow"></div>
         </div>
@@ -64,7 +248,7 @@
         <h2 class="signin-title">AI人脸识别签到</h2>
         <p class="signin-desc">请开启摄像头，完成人脸验证<br>系统将自动识别并完成签到</p>
 
-        <!-- 新增摄像头容器 -->
+        <!-- 摄像头容器 -->
         <div class="camera-container">
             <video id="video" autoplay muted playsinline></video>
             <canvas id="canvas"></canvas>
@@ -83,6 +267,7 @@
             </button>
         </div>
 
+        <!-- 功能按钮 -->
         <div class="btn-group">
             <button class="signin-btn" onclick="faceSignin()">
                 <i class="fas fa-id-card"></i> 人脸识别签到
@@ -92,10 +277,11 @@
             </button>
         </div>
 
-        <p class="copyright">© 2025 AI Sign-in System | 人脸识别版</p>
+        <p class="copyright">© 2025 AI Sign-in System | 科技驱动 · 安全高效</p>
     </div>
 
     <script>
+        // 粒子背景初始化（保留动态交互）
         particlesJS("particles-js", {
             particles: {
                 number: { value: 120, density: { enable: true, value_area: 900 } },
@@ -135,11 +321,10 @@
             retina_detect: true
         });
 
-        // 后端地址配置
-        const backendUrl = "https://itfuhao.pythonanywhere.com";
+        // 替换为你的花生壳公网地址（关键！）
+        const backendUrl = "http://xxxxxx.vipgz1.idcfengye.com";
         const registerFaceUrl = `${backendUrl}/register_face`;
         const faceSigninUrl = `${backendUrl}/face_signin`;
-        const normalSigninUrl = `${backendUrl}/signin`;
 
         // 摄像头相关变量
         let video = document.getElementById('video');
@@ -151,18 +336,18 @@
         function startCamera() {
             if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
                 navigator.mediaDevices.getUserMedia({ video: true })
-                    .then(function (mediaStream) {
+                    .then(mediaStream => {
                         stream = mediaStream;
                         video.srcObject = stream;
                         video.play();
                         alert('摄像头开启成功，请对准人脸！');
                     })
-                    .catch(function (err) {
+                    .catch(err => {
                         console.log('摄像头开启失败：', err);
-                        alert('摄像头开启失败，请允许摄像头权限或检查设备！');
+                        alert('摄像头开启失败，请允许权限或检查设备！');
                     });
             } else {
-                alert('您的浏览器不支持摄像头调用，请升级浏览器！');
+                alert('您的浏览器不支持摄像头调用，请升级！');
             }
         }
 
@@ -176,17 +361,14 @@
             canvas.height = video.videoHeight;
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
             let faceBase64 = canvas.toDataURL('image/jpeg');
-            localStorage.setItem('face_image', faceBase64); // 临时存储
+            localStorage.setItem('face_image', faceBase64);
             alert('人脸采集成功！');
             return faceBase64;
         }
 
         // 录入人脸到后端
         async function registerFace() {
-            let faceBase64 = localStorage.getItem('face_image');
-            if (!faceBase64) {
-                faceBase64 = captureFace();
-            }
+            let faceBase64 = localStorage.getItem('face_image') || captureFace();
             try {
                 const response = await fetch(registerFaceUrl, {
                     method: 'POST',
@@ -195,23 +377,16 @@
                     mode: 'cors'
                 });
                 const result = await response.json();
-                if (result.code === 200) {
-                    alert('人脸录入成功！现在可以进行人脸识别签到');
-                } else {
-                    alert(result.msg);
-                }
+                alert(result.msg);
             } catch (error) {
                 console.log('人脸录入异常：', error);
-                alert('网络错误！请检查后端是否正常运行');
+                alert('网络错误，请检查后端是否运行！');
             }
         }
 
         // 人脸识别签到
         async function faceSignin() {
-            let faceBase64 = localStorage.getItem('face_image');
-            if (!faceBase64) {
-                faceBase64 = captureFace();
-            }
+            let faceBase64 = localStorage.getItem('face_image') || captureFace();
             try {
                 const response = await fetch(faceSigninUrl, {
                     method: 'POST',
@@ -220,37 +395,14 @@
                     mode: 'cors'
                 });
                 const result = await response.json();
-                if (result.code === 200) {
-                    alert(result.msg);
-                } else {
-                    alert(result.msg);
-                }
+                alert(result.msg + (result.data ? `\n签到时间：${result.data.signin_time}` : ''));
             } catch (error) {
-                console.log('人脸识别异常：', error);
-                alert('网络错误！请检查后端是否正常运行');
+                console.log('签到异常：', error);
+                alert('网络错误，请检查后端是否运行！');
             }
         }
 
-        // 普通签到（保留）
-        async function signinAgain() {
-            try {
-                const response = await fetch(normalSigninUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    mode: 'cors'
-                });
-                const result = await response.json();
-                if (result.code === 200) {
-                    alert('再次签到成功！');
-                } else {
-                    alert('签到失败，请重试～');
-                }
-            } catch (error) {
-                console.log('签到请求异常：', error);
-                alert('网络错误！请检查后端是否正常运行');
-            }
-        }
-
+        // 返回登录页
         function goBack() {
             window.location.href = 'login.html';
         }
