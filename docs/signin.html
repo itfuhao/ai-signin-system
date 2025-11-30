@@ -1,443 +1,112 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 <head>
-    <title>AI智能签到系统 - 签到</title>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <title>AI签到系统 - 签到</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
-        }
-        body {
-            min-height: 100vh;
-            background: linear-gradient(135deg, #050816 0%, #111827 100%);
-            overflow: hidden;
-            position: relative;
-        }
-        /* 粒子背景（与登录页一致） */
-        #particles-js {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 0;
-            opacity: 0.9;
-        }
-        /* AI能量核心装饰（与登录页呼应） */
-        .ai-core {
-            position: absolute;
-            border-radius: 50%;
-            filter: blur(80px);
-            z-index: 0;
-        }
-        .core-1 {
-            top: 25%;
-            right: 10%;
-            width: 380px;
-            height: 380px;
-            background: radial-gradient(circle, rgba(59, 130, 246, 0.3) 0%, transparent 75%);
-        }
-        .core-2 {
-            bottom: 25%;
-            left: 12%;
-            width: 330px;
-            height: 330px;
-            background: radial-gradient(circle, rgba(139, 92, 246, 0.2) 0%, transparent 75%);
-        }
-        /* 签到卡片（3D毛玻璃+霓虹边框） */
-        .signin-container {
-            position: relative;
-            z-index: 1;
-            width: 100%;
-            max-width: 650px;
-            margin: 80px auto;
-            padding: 60px 40px;
-            background: rgba(17, 24, 39, 0.85);
-            backdrop-filter: blur(15px);
-            border: 1px solid rgba(59, 130, 246, 0.2);
-            border-radius: 28px;
-            box-shadow: 0 0 70px rgba(59, 130, 246, 0.15);
-            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
-            text-align: center;
-        }
-        .signin-container:hover {
-            box-shadow: 0 0 90px rgba(59, 130, 246, 0.25);
-            transform: translateY(-5px);
-        }
-        /* 管理员AI标识（发光效果） */
-        .admin-avatar {
-            width: 120px;
-            height: 120px;
-            margin: 0 auto 30px;
-            position: relative;
-        }
-        .avatar-circle {
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            box-shadow: 0 0 35px rgba(59, 130, 246, 0.6);
-            animation: avatarPulse 2.5s infinite alternate;
-        }
-        .avatar-icon {
-            color: white;
-            font-size: 60px;
-            z-index: 1;
-        }
-        .avatar-glow {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 130%;
-            height: 130%;
-            border-radius: 50%;
-            background: radial-gradient(circle, rgba(59, 130, 246, 0.5) 0%, transparent 80%);
-            animation: avatarGlow 3.5s infinite alternate;
-        }
-        /* 标题样式 */
-        .signin-title {
-            color: white;
-            font-size: 30px;
-            margin-bottom: 12px;
-            letter-spacing: 0.8px;
-            font-weight: 600;
-        }
-        .signin-subtitle {
-            color: rgba(255, 255, 255, 0.5);
-            font-size: 16px;
-            margin-bottom: 40px;
-            letter-spacing: 0.5px;
-        }
-        /* 摄像头预览区域（科技感边框） */
-        .camera-preview {
-            width: 100%;
-            max-width: 480px;
-            height: 320px;
-            margin: 0 auto 35px;
-            border-radius: 18px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(59, 130, 246, 0.2);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: rgba(255, 255, 255, 0.4);
-            overflow: hidden;
-            transition: all 0.3s ease;
-        }
-        .camera-preview:hover {
-            border-color: rgba(59, 130, 246, 0.4);
-            box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);
-        }
-        .camera-preview video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        .camera-placeholder {
-            text-align: center;
-        }
-        .camera-placeholder i {
-            font-size: 60px;
-            margin-bottom: 15px;
-            color: rgba(59, 130, 246, 0.5);
-        }
-        /* 签到按钮（霓虹蓝+上浮光效，与登录页一致） */
-        .signin-btn {
-            padding: 18px 50px;
-            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
-            border: none;
-            border-radius: 16px;
-            color: white;
-            font-size: 19px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 6px 30px rgba(59, 130, 246, 0.3);
-            letter-spacing: 0.8px;
-            margin-bottom: 35px;
-        }
-        .signin-btn:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 12px 40px rgba(59, 130, 246, 0.5);
-            background: linear-gradient(135deg, #2563eb, #7c3aed);
-        }
-        .signin-btn:active {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 35px rgba(59, 130, 246, 0.4);
-        }
-        /* 状态反馈框（霓虹边框） */
-        .status-box {
-            padding: 22px;
-            border-radius: 14px;
-            margin: 0 auto 35px;
-            max-width: 450px;
-            font-size: 17px;
-            display: none;
-            animation: fadeIn 0.5s ease forwards;
-        }
-        .status-success {
-            background: rgba(34, 197, 94, 0.1);
-            border: 1px solid rgba(34, 197, 94, 0.3);
-            color: #22c55e;
-            display: block;
-            box-shadow: 0 0 15px rgba(34, 197, 94, 0.1);
-        }
-        .status-error {
-            background: rgba(248, 113, 113, 0.1);
-            border: 1px solid rgba(248, 113, 113, 0.3);
-            color: #f87171;
-            display: block;
-            box-shadow: 0 0 15px rgba(248, 113, 113, 0.1);
-        }
-        .status-box i {
-            margin-right: 8px;
-            font-size: 18px;
-        }
-        /* 签到信息提示 */
-        .signin-info {
-            color: rgba(255, 255, 255, 0.4);
-            font-size: 14px;
-            margin-bottom: 40px;
-            letter-spacing: 0.3px;
-        }
-        /* 退出登录按钮（科技感边框） */
-        .logout-btn {
-            padding: 14px 40px;
-            background: transparent;
-            border: 1px solid rgba(59, 130, 246, 0.4);
-            border-radius: 14px;
-            color: #3b82f6;
-            font-size: 16px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        .logout-btn:hover {
-            background: rgba(59, 130, 246, 0.1);
-            border-color: #3b82f6;
-            box-shadow: 0 0 15px rgba(59, 130, 246, 0.2);
-            color: white;
-        }
-        /* 动画效果（与登录页统一） */
-        @keyframes avatarPulse {
-            0% {
-                box-shadow: 0 0 25px rgba(59, 130, 246, 0.5);
-            }
-            100% {
-                box-shadow: 0 0 45px rgba(59, 130, 246, 0.7);
-            }
-        }
-        @keyframes avatarGlow {
-            0% {
-                opacity: 0.4;
-                transform: translate(-50%, -50%) scale(1);
-            }
-            100% {
-                opacity: 0.7;
-                transform: translate(-50%, -50%) scale(1.15);
-            }
-        }
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(15px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        /* 响应式适配 */
-        @media (max-width: 768px) {
-            .ai-core {
-                display: none;
-            }
-            .signin-container {
-                margin: 50px 25px;
-                padding: 50px 30px;
-            }
-            .admin-avatar {
-                width: 100px;
-                height: 100px;
-            }
-            .avatar-icon {
-                font-size: 50px;
-            }
-            .signin-title {
-                font-size: 26px;
-            }
-            .camera-preview {
-                height: 280px;
-            }
-            .signin-btn {
-                padding: 16px 40px;
-                font-size: 18px;
-            }
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial; position: relative; overflow: hidden; }
+        #particleCanvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; }
+        .signin-container { max-width: 400px; margin: 100px auto; padding: 0 20px; }
+        .signin-box { background: rgba(255, 255, 255, 0.9); padding: 30px; border-radius: 10px; box-shadow: 0 0 20px rgba(0, 0, 0, 0.1); }
+        h2 { text-align: center; margin-bottom: 30px; color: #333; }
+        button { width: 100%; padding: 14px; font-size: 18px; background: #28a745; color: white; border: none; border-radius: 6px; cursor: pointer; transition: background 0.3s; }
+        button:hover { background: #218838; }
+        .back { text-align: center; margin-top: 20px; font-size: 16px; }
+        a { color: #007bff; text-decoration: none; }
+        a:hover { text-decoration: underline; }
     </style>
-    <!-- 引入图标库和粒子交互库 -->
-    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.bootcdn.net/ajax/libs/particles.js/2.0.0/particles.min.js"></script>
 </head>
 <body>
-    <!-- 动态粒子背景（与登录页完全一致的交互） -->
-    <div id="particles-js"></div>
+    <!-- 粒子动态背景Canvas -->
+    <canvas id="particleCanvas"></canvas>
 
-    <!-- AI能量核心装饰 -->
-    <div class="ai-core core-1"></div>
-    <div class="ai-core core-2"></div>
-
-    <!-- 签到卡片主体 -->
+    <!-- 签到面板 -->
     <div class="signin-container">
-        <!-- 管理员AI标识 -->
-        <div class="admin-avatar">
-            <div class="avatar-circle">
-                <i class="fas fa-user-shield avatar-icon"></i>
-            </div>
-            <div class="avatar-glow"></div>
+        <div class="signin-box">
+            <h2>AI签到页面</h2>
+            <button id="signinBtn">开始AI签到</button>
+            <div class="back"><a href="login.html">返回登录页</a></div>
         </div>
-
-        <!-- 标题 -->
-        <h2 class="signin-title">欢迎回来，管理员</h2>
-        <p class="signin-subtitle">AI 智能验证 · 一键完成签到</p>
-
-        <!-- 摄像头预览区域 -->
-        <div class="camera-preview" id="cameraPreview">
-            <div class="camera-placeholder">
-                <i class="fas fa-camera"></i>
-                <p>点击签到后启动摄像头验证</p>
-            </div>
-        </div>
-
-        <!-- 签到按钮 -->
-        <button class="signin-btn" id="signinBtn">
-            <i class="fas fa-check-circle"></i> 开始AI签到
-        </button>
-
-        <!-- 状态反馈框 -->
-        <div class="status-box" id="statusBox"></div>
-
-        <p class="signin-info">签到成功后记录当前时间，今日不可重复签到</p>
-
-        <!-- 退出登录按钮 -->
-        <button class="logout-btn" id="logoutBtn">
-            <i class="fas fa-sign-out-alt"></i> 安全退出
-        </button>
     </div>
 
+    <!-- 粒子效果核心JS + 签到功能JS -->
     <script>
-        // 初始化粒子背景（与登录页完全一致的交互参数）
-        particlesJS("particles-js", {
-            particles: {
-                number: { value: 120, density: { enable: true, value_area: 900 } },
-                color: { value: "#3b82f6" },
-                shape: { type: "circle" },
-                opacity: { value: 0.7, random: true },
-                size: { value: 3, random: true, min: 1 },
-                line_linked: {
-                    enable: true,
-                    distance: 150,
-                    color: "#3b82f6",
-                    opacity: 0.3,
-                    width: 1
-                },
-                move: {
-                    enable: true,
-                    speed: 1.2,
-                    direction: "none",
-                    random: true,
-                    straight: false,
-                    out_mode: "out",
-                    bounce: false
-                }
-            },
-            interactivity: {
-                detect_on: "canvas",
-                events: {
-                    onhover: { enable: true, mode: "grab" },
-                    onclick: { enable: true, mode: "push" },
-                    resize: true
-                },
-                modes: {
-                    grab: { distance: 160, line_linked: { opacity: 0.6 } },
-                    push: { particles_nb: 8 }
-                }
-            },
-            retina_detect: true
-        });
+        // 1. 粒子动态背景（与登录页一致）
+        const canvas = document.getElementById('particleCanvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
 
-        // 签到逻辑（保留原有功能，适配新界面）
-        const signinBtn = document.getElementById('signinBtn');
-        const statusBox = document.getElementById('statusBox');
-        const cameraPreview = document.getElementById('cameraPreview');
-        const logoutBtn = document.getElementById('logoutBtn');
-        let hasSignedIn = false;
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
 
-        // 开始签到
-        signinBtn.addEventListener('click', async () => {
-            if (hasSignedIn) {
-                statusBox.className = 'status-box status-error';
-                statusBox.innerHTML = '<i class="fas fa-exclamation-circle"></i> 您已完成今日签到，无需重复操作！';
-                return;
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 3 + 1;
+                this.speedX = Math.random() * 0.5 - 0.25;
+                this.speedY = Math.random() * 0.5 - 0.25;
+                this.color = `rgba(${Math.random()*155+100}, ${Math.random()*255}, ${Math.random()*155+100}, 0.7)`; // 淡绿/淡青系
             }
 
-            try {
-                // 启动摄像头
-                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-                const video = document.createElement('video');
-                video.srcObject = stream;
-                video.autoplay = true;
-                video.muted = true;
-                cameraPreview.innerHTML = '';
-                cameraPreview.appendChild(video);
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                if (this.x < 0 || this.x > canvas.width) this.speedX *= -1;
+                if (this.y < 0 || this.y > canvas.height) this.speedY *= -1;
+            }
 
-                // 调用后端签到接口
-                const response = await fetch('http://127.0.0.1:5000/signin', {
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = this.color;
+                ctx.fill();
+            }
+        }
+
+        function initParticles(count = 100) {
+            particles = [];
+            for (let i = 0; i < count; i++) {
+                particles.push(new Particle());
+            }
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(particle => {
+                particle.update();
+                particle.draw();
+            });
+            requestAnimationFrame(animate);
+        }
+
+        initParticles();
+        animate();
+
+        // 2. 签到功能（与后端匹配）
+        document.querySelector('#signinBtn').addEventListener('click', async () => {
+            try {
+                // 关键：替换为你的Render后端签到地址！
+                const backendSigninUrl = 'https://ai-signin-backend.onrender.com/signin';
+                const response = await fetch(backendSigninUrl, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' }
                 });
-                const result = await response.json();
 
-                if (result.code === 200) {
-                    // 签到成功
-                    hasSignedIn = true;
-                    const now = new Date();
-                    const timeStr = `${now.getFullYear()}-${(now.getMonth()+1).toString().padStart(2,'0')}-${now.getDate().toString().padStart(2,'0')} ${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}:${now.getSeconds().toString().padStart(2,'0')}`;
-                    statusBox.className = 'status-box status-success';
-                    statusBox.innerHTML = `<i class="fas fa-check-circle"></i> AI验证通过，签到成功！<br>签到时间：${timeStr}`;
-
-                    // 3秒后关闭摄像头
-                    setTimeout(() => {
-                        stream.getTracks().forEach(track => track.stop());
-                        cameraPreview.innerHTML = `
-                            <div class="camera-placeholder">
-                                <i class="fas fa-check-circle" style="color: #22c55e;"></i>
-                                <p>签到已完成，摄像头已关闭</p>
-                            </div>
-                        `;
-                    }, 3000);
+                const res = await response.json();
+                if (res.code === 200) {
+                    alert('签到成功！' + res.msg);
                 } else {
-                    statusBox.className = 'status-box status-error';
-                    statusBox.innerHTML = '<i class="fas fa-exclamation-circle"></i> 签到失败！<br>摄像头未检测到，请重试。';
+                    alert('签到失败：' + res.msg);
                 }
             } catch (error) {
-                statusBox.className = 'status-box status-error';
-                statusBox.innerHTML = '<i class="fas fa-exclamation-circle"></i> 签到失败！<br>请检查摄像头权限或后端服务。';
-            }
-        });
-
-        // 退出登录（跳转AI炫酷登录页）
-        logoutBtn.addEventListener('click', () => {
-            if (confirm('确定要退出登录吗？')) {
-                window.location.href = 'login.html';
+                console.error('签到失败：', error);
+                alert('网络错误，请重试！');
             }
         });
     </script>
