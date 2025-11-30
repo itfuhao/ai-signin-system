@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AI智能签到系统 - 登录</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+        }
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #050816 0%, #111827 100%);
+            overflow: hidden;
+            position: relative;
+        }
+        /* 粒子背景（核心交互元素） */
+        #particles-js {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            opacity: 0.9;
+        }
+        /* AI能量核心装饰 */
+        .ai-core {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            z-index: 0;
+        }
+        .core-1 {
+            top: 30%;
+            right: 12%;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.3) 0%, transparent 75%);
+        }
+        .core-2 {
+            bottom: 20%;
+            left: 15%;
+            width: 350px;
+            height: 350px;
+            background: radial-gradient(circle, rgba(139, 92, 246, 0.2) 0%, transparent 75%);
+        }
+        /* 登录卡片（3D毛玻璃效果） */
+        .login-container {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 450px;
+            margin: 100px auto;
+            padding: 60px 35px;
+            background: rgba(17, 24, 39, 0.85);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            border-radius: 28px;
+            box-shadow: 0 0 70px rgba(59, 130, 246, 0.15);
+            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+        .login-container:hover {
+            box-shadow: 0 0 90px rgba(59, 130, 246, 0.25);
+            transform: translateY(-8px);
+        }
+        /* 发光AI Logo（呼吸+光晕效果） */
+        .ai-logo {
+            width: 130px;
+            height: 130px;
+            margin: 0 auto 40px;
+            position: relative;
+        }
+        .logo-circle {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 0 40px rgba(59, 130, 246, 0.6), 0 0 20px rgba(139, 92, 246, 0.4);
+            animation: logoPulse 2s infinite alternate;
+        }
+        .logo-icon {
+            color: white;
+            font-size: 65px;
+            z-index: 1;
+        }
+        .logo-glow {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 140%;
+            height: 140%;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.6) 0%, transparent 80%);
+            animation: logoGlow 3s infinite alternate;
+        }
+        /* 标题样式 */
+        .login-title {
+            color: white;
+            font-size: 32px;
+            text-align: center;
+            margin-bottom: 10px;
+            letter-spacing: 0.8px;
+            font-weight: 600;
+        }
+        .login-subtitle {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 16px;
+            text-align: center;
+            margin-bottom: 50px;
+            letter-spacing: 0.5px;
+        }
+        /* 输入框组（霓虹聚焦效果） */
+        .input-group {
+            position: relative;
+            margin-bottom: 30px;
+        }
+        .input-icon {
+            position: absolute;
+            left: 25px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 20px;
+            transition: color 0.3s ease;
+        }
+        .login-input {
+            width: 100%;
+            padding: 18px 25px 18px 65px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            border-radius: 16px;
+            color: white;
+            font-size: 17px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+        .login-input:focus {
+            border-color: #3b82f6; /* 霓虹蓝边框 */
+            box-shadow: 0 0 25px rgba(59, 130, 246, 0.4); /* 霓虹扩散光效 */
+            background: rgba(255, 255, 255, 0.08);
+        }
+        .login-input:focus + .input-icon {
+            color: #3b82f6; /* 图标同步霓虹蓝 */
+        }
+        .login-input::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 17px;
+        }
+        /* 登录按钮（上浮+光效增强） */
+        .login-btn {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            border: none;
+            border-radius: 16px;
+            color: white;
+            font-size: 19px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 30px rgba(59, 130, 246, 0.3);
+            letter-spacing: 0.8px;
+            margin-top: 15px;
+        }
+        .login-btn:hover {
+            transform: translateY(-6px); /* 明显上浮效果 */
+            box-shadow: 0 12px 40px rgba(59, 130, 246, 0.5); /* 光效增强 */
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
+        }
+        .login-btn:active {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 35px rgba(59, 130, 246, 0.4);
+        }
+        /* 错误提示 */
+        .error-tip {
+            color: #f87171;
+            font-size: 14px;
+            text-align: center;
+            margin-top: 18px;
+            display: none;
+            animation: fadeIn 0.5s ease forwards;
+        }
+        /* 底部版权 */
+        .copyright {
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 14px;
+            text-align: center;
+            margin-top: 40px;
+            letter-spacing: 0.3px;
+        }
+        /* 核心动画效果 */
+        @keyframes logoPulse {
+            0% {
+                box-shadow: 0 0 30px rgba(59, 130, 246, 0.5), 0 0 15px rgba(139, 92, 246, 0.3);
+            }
+            100% {
+                box-shadow: 0 0 50px rgba(59, 130, 246, 0.7), 0 0 30px rgba(139, 92, 246, 0.5);
+            }
+        }
+        @keyframes logoGlow {
+            0% {
+                opacity: 0.5;
+                transform: translate(-50%, -50%) scale(1);
+            }
+            100% {
+                opacity: 0.8;
+                transform: translate(-50%, -50%) scale(1.2);
+            }
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        /* 响应式适配 */
+        @media (max-width: 768px) {
+            .ai-core {
+                display: none;
+            }
+            .login-container {
+                margin: 80px 25px;
+                padding: 50px 30px;
+            }
+            .ai-logo {
+                width: 110px;
+                height: 110px;
+            }
+            .logo-icon {
+                font-size: 55px;
+            }
+            .login-title {
+                font-size: 28px;
+            }
+        }
+    </style>
+    <!-- 引入图标库和粒子交互库 -->
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.bootcdn.net/ajax/libs/particles.js/2.0.0/particles.min.js"></script>
+</head>
+<body>
+    <!-- 动态粒子背景（核心交互） -->
+    <div id="particles-js"></div>
+
+    <!-- AI能量核心装饰 -->
+    <div class="ai-core core-1"></div>
+    <div class="ai-core core-2"></div>
+
+    <!-- 登录卡片主体 -->
+    <div class="login-container">
+        <!-- 发光AI Logo -->
+        <div class="ai-logo">
+            <div class="logo-circle">
+                <i class="fas fa-microchip logo-icon"></i> <!-- 芯片图标，强化科技感 -->
+            </div>
+            <div class="logo-glow"></div>
+        </div>
+
+        <!-- 标题 -->
+        <h2 class="login-title">AI 智能签到系统</h2>
+        <p class="login-subtitle">AI-Powered Secure Sign-in</p>
+
+        <!-- 输入框 -->
+        <div class="input-group">
+            <input type="text" id="user" class="login-input" value="admin" placeholder="管理员账号">
+            <i class="fas fa-user input-icon"></i>
+        </div>
+        <div class="input-group">
+            <input type="password" id="pwd" class="login-input" value="123456" placeholder="登录密码">
+            <i class="fas fa-lock input-icon"></i>
+        </div>
+
+        <!-- 登录按钮 -->
+        <button class="login-btn" onclick="login()">
+            <i class="fas fa-arrow-right"></i> 智能验证登录
+        </button>
+
+        <!-- 错误提示 -->
+        <p class="error-tip" id="errorTip">账号或密码错误，请重试</p>
+
+        <!-- 底部版权 -->
+        <p class="copyright">© 2025 AI Sign-in System | 科技驱动 · 安全高效</p>
+    </div>
+
+    <script>
+        // 初始化粒子背景（强化交互效果）
+        particlesJS("particles-js", {
+            particles: {
+                number: { value: 120, density: { enable: true, value_area: 900 } },
+                color: { value: "#3b82f6" }, // 粒子颜色=霓虹蓝，统一视觉
+                shape: { type: "circle" },
+                opacity: { value: 0.7, random: true },
+                size: { value: 3, random: true, min: 1 },
+                line_linked: {
+                    enable: true,
+                    distance: 150,
+                    color: "#3b82f6",
+                    opacity: 0.3,
+                    width: 1
+                },
+                move: {
+                    enable: true,
+                    speed: 1.2, // 粒子流动速度，增强动态感
+                    direction: "none",
+                    random: true,
+                    straight: false,
+                    out_mode: "out",
+                    bounce: false
+                }
+            },
+            interactivity: {
+                detect_on: "canvas",
+                events: {
+                    onhover: {
+                        enable: true,
+                        mode: "grab" // 鼠标悬浮：粒子聚合+连线，跟随鼠标移动
+                    },
+                    onclick: {
+                        enable: true,
+                        mode: "push" // 鼠标点击：粒子向外扩散，反馈强烈
+                    },
+                    resize: true
+                },
+                modes: {
+                    grab: { distance: 160, line_linked: { opacity: 0.6 } }, // 悬浮聚合范围
+                    push: { particles_nb: 8 } // 点击扩散粒子数量
+                }
+            },
+            retina_detect: true
+        });
+
+        // 登录逻辑（兼容原有后端，无需修改）
+        async function login() {
+            const username = document.getElementById('user').value;
+            const password = document.getElementById('pwd').value;
+            const errorTip = document.getElementById('errorTip');
+
+            try {
+                const response = await fetch('http://127.0.0.1:5000/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const result = await response.json();
+                if (result.code === 200) {
+                    window.location.href = 'signin.html'; // 跳转原有签到页
+                } else {
+                    errorTip.style.display = 'block';
+                    setTimeout(() => errorTip.style.display = 'none', 3000);
+                }
+            } catch (error) {
+                console.log('登录请求异常：', error);
+                errorTip.style.display = 'block';
+                setTimeout(() => errorTip.style.display = 'none', 3000);
+            }
+        }
+    </script>
+</body>
+</html>
