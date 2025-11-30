@@ -1,114 +1,333 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>AI签到系统 - 签到</title>
+    <title>AI智能签到系统 - 签到成功</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: Arial; position: relative; overflow: hidden; }
-        #particleCanvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; }
-        .signin-container { max-width: 400px; margin: 100px auto; padding: 0 20px; }
-        .signin-box { background: rgba(255, 255, 255, 0.9); padding: 30px; border-radius: 10px; box-shadow: 0 0 20px rgba(0, 0, 0, 0.1); }
-        h2 { text-align: center; margin-bottom: 30px; color: #333; }
-        button { width: 100%; padding: 14px; font-size: 18px; background: #28a745; color: white; border: none; border-radius: 6px; cursor: pointer; transition: background 0.3s; }
-        button:hover { background: #218838; }
-        .back { text-align: center; margin-top: 20px; font-size: 16px; }
-        a { color: #007bff; text-decoration: none; }
-        a:hover { text-decoration: underline; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+        }
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #050816 0%, #111827 100%);
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        #particles-js {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            opacity: 0.9;
+        }
+        .ai-core {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            z-index: 0;
+        }
+        .core-1 {
+            top: 20%;
+            left: 20%;
+            width: 380px;
+            height: 380px;
+            background: radial-gradient(circle, rgba(74, 222, 128, 0.3) 0%, transparent 75%);
+        }
+        .core-2 {
+            bottom: 25%;
+            right: 18%;
+            width: 330px;
+            height: 330px;
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.2) 0%, transparent 75%);
+        }
+        .signin-container {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 500px;
+            padding: 70px 40px;
+            background: rgba(17, 24, 39, 0.85);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(74, 222, 128, 0.2);
+            border-radius: 32px;
+            box-shadow: 0 0 80px rgba(74, 222, 128, 0.15);
+            text-align: center;
+            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+        .signin-container:hover {
+            box-shadow: 0 0 100px rgba(74, 222, 128, 0.25);
+            transform: translateY(-8px);
+        }
+        .success-icon {
+            width: 180px;
+            height: 180px;
+            margin: 0 auto 40px;
+            position: relative;
+        }
+        .icon-circle {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #4ade80, #22c55e);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 0 50px rgba(74, 222, 128, 0.6), 0 0 25px rgba(34, 197, 94, 0.4);
+            animation: iconPulse 2s infinite alternate;
+        }
+        .check-icon {
+            color: white;
+            font-size: 90px;
+            z-index: 1;
+        }
+        .icon-glow {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 150%;
+            height: 150%;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(74, 222, 128, 0.6) 0%, transparent 80%);
+            animation: iconGlow 3s infinite alternate;
+        }
+        .signin-title {
+            color: white;
+            font-size: 40px;
+            margin-bottom: 15px;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+        .signin-desc {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 18px;
+            margin-bottom: 60px;
+            line-height: 1.6;
+            letter-spacing: 0.5px;
+        }
+        .signin-btn {
+            padding: 18px 45px;
+            background: linear-gradient(135deg, #4ade80, #22c55e);
+            border: none;
+            border-radius: 16px;
+            color: #050816;
+            font-size: 19px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 30px rgba(74, 222, 128, 0.3);
+            letter-spacing: 0.8px;
+            margin-right: 20px;
+        }
+        .back-btn {
+            padding: 18px 45px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            color: white;
+            font-size: 19px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 30px rgba(0, 0, 0, 0.1);
+            letter-spacing: 0.8px;
+        }
+        .signin-btn:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 12px 40px rgba(74, 222, 128, 0.5);
+            background: linear-gradient(135deg, #34d399, #16a34a);
+        }
+        .back-btn:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+        .signin-btn:active, .back-btn:active {
+            transform: translateY(-2px);
+        }
+        .copyright {
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 14px;
+            text-align: center;
+            margin-top: 60px;
+            letter-spacing: 0.3px;
+        }
+        @keyframes iconPulse {
+            0% {
+                box-shadow: 0 0 40px rgba(74, 222, 128, 0.5), 0 0 20px rgba(34, 197, 94, 0.3);
+            }
+            100% {
+                box-shadow: 0 0 60px rgba(74, 222, 128, 0.7), 0 0 30px rgba(34, 197, 94, 0.5);
+            }
+        }
+        @keyframes iconGlow {
+            0% {
+                opacity: 0.5;
+                transform: translate(-50%, -50%) scale(1);
+            }
+            100% {
+                opacity: 0.8;
+                transform: translate(-50%, -50%) scale(1.2);
+            }
+        }
+        @media (max-width: 768px) {
+            .ai-core {
+                display: none;
+            }
+            .signin-container {
+                margin: 0 25px;
+                padding: 60px 30px;
+            }
+            .success-icon {
+                width: 150px;
+                height: 150px;
+            }
+            .check-icon {
+                font-size: 75px;
+            }
+            .signin-title {
+                font-size: 32px;
+            }
+            .signin-btn, .back-btn {
+                padding: 16px 35px;
+                font-size: 17px;
+                margin-right: 10px;
+                margin-bottom: 15px;
+            }
+            .btn-group {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 15px;
+            }
+        }
     </style>
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.bootcdn.net/ajax/libs/particles.js/2.0.0/particles.min.js"></script>
 </head>
 <body>
-    <!-- 粒子动态背景Canvas -->
-    <canvas id="particleCanvas"></canvas>
+    <div id="particles-js"></div>
+    <div class="ai-core core-1"></div>
+    <div class="ai-core core-2"></div>
 
-    <!-- 签到面板 -->
     <div class="signin-container">
-        <div class="signin-box">
-            <h2>AI签到页面</h2>
-            <button id="signinBtn">开始AI签到</button>
-            <div class="back"><a href="login.html">返回登录页</a></div>
+        <div class="success-icon">
+            <div class="icon-circle">
+                <i class="fas fa-check check-icon"></i>
+            </div>
+            <div class="icon-glow"></div>
         </div>
+
+        <h2 class="signin-title">签到成功！</h2>
+        <p class="signin-desc">AI 智能验证已完成<br>感谢您的使用，祝您工作顺利～</p>
+
+        <div class="btn-group">
+            <button class="signin-btn" onclick="signinAgain()">
+                <i class="fas fa-redo"></i> 再次签到
+            </button>
+            <button class="back-btn" onclick="goBack()">
+                <i class="fas fa-arrow-left"></i> 返回登录页
+            </button>
+        </div>
+
+        <p class="copyright">© 2025 AI Sign-in System | 科技驱动 · 安全高效</p>
     </div>
 
-    <!-- 粒子效果核心JS + 签到功能JS -->
     <script>
-        // 1. 粒子动态背景（与登录页一致）
-        const canvas = document.getElementById('particleCanvas');
-        const ctx = canvas.getContext('2d');
-        let particles = [];
+        particlesJS("particles-js", {
+            particles: {
+                number: { value: 120, density: { enable: true, value_area: 900 } },
+                color: { value: "#4ade80" },
+                shape: { type: "circle" },
+                opacity: { value: 0.7, random: true },
+                size: { value: 3, random: true, min: 1 },
+                line_linked: {
+                    enable: true,
+                    distance: 150,
+                    color: "#4ade80",
+                    opacity: 0.3,
+                    width: 1
+                },
+                move: {
+                    enable: true,
+                    speed: 1.2,
+                    direction: "none",
+                    random: true,
+                    straight: false,
+                    out_mode: "out",
+                    bounce: false
+                }
+            },
+            interactivity: {
+                detect_on: "canvas",
+                events: {
+                    onhover: { enable: true, mode: "grab" },
+                    onclick: { enable: true, mode: "push" },
+                    resize: true
+                },
+                modes: {
+                    grab: { distance: 160, line_linked: { opacity: 0.6 } },
+                    push: { particles_nb: 8 }
+                }
+            },
+            retina_detect: true
+        });
 
-        function resizeCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        }
-        resizeCanvas();
-        window.addEventListener('resize', resizeCanvas);
+        // 已替换为 PythonAnywhere 公网后端地址
+        const backendSigninUrl = "https://itfuhao.pythonanywhere.com/signin";
 
-        class Particle {
-            constructor() {
-                this.x = Math.random() * canvas.width;
-                this.y = Math.random() * canvas.height;
-                this.size = Math.random() * 3 + 1;
-                this.speedX = Math.random() * 0.5 - 0.25;
-                this.speedY = Math.random() * 0.5 - 0.25;
-                this.color = `rgba(${Math.random()*155+100}, ${Math.random()*255}, ${Math.random()*155+100}, 0.7)`; // 淡绿/淡青系
-            }
-
-            update() {
-                this.x += this.speedX;
-                this.y += this.speedY;
-                if (this.x < 0 || this.x > canvas.width) this.speedX *= -1;
-                if (this.y < 0 || this.y > canvas.height) this.speedY *= -1;
-            }
-
-            draw() {
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fillStyle = this.color;
-                ctx.fill();
-            }
-        }
-
-        function initParticles(count = 100) {
-            particles = [];
-            for (let i = 0; i < count; i++) {
-                particles.push(new Particle());
-            }
-        }
-
-        function animate() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            particles.forEach(particle => {
-                particle.update();
-                particle.draw();
-            });
-            requestAnimationFrame(animate);
-        }
-
-        initParticles();
-        animate();
-
-        // 2. 签到功能（与后端匹配）
-        document.querySelector('#signinBtn').addEventListener('click', async () => {
+        // 页面加载时自动完成签到（可选，也可保留手动点击）
+        window.onload = async function() {
             try {
-                // 关键：替换为你的Render后端签到地址！
-                const backendSigninUrl = 'https://ai-signin-backend.onrender.com/signin';
                 const response = await fetch(backendSigninUrl, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' }
+                    headers: { 'Content-Type': 'application/json' },
+                    mode: 'cors'
+                });
+                const result = await response.json();
+                console.log('自动签到成功：', result);
+            } catch (error) {
+                console.log('自动签到异常：', error);
+            }
+        };
+
+        async function signinAgain() {
+            try {
+                const response = await fetch(backendSigninUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    mode: 'cors'
                 });
 
-                const res = await response.json();
-                if (res.code === 200) {
-                    alert('签到成功！' + res.msg);
+                if (!response.ok) {
+                    throw new Error(`请求失败：${response.status}`);
+                }
+
+                const result = await response.json();
+                if (result.code === 200) {
+                    alert('再次签到成功！');
                 } else {
-                    alert('签到失败：' + res.msg);
+                    alert('签到失败，请重试～');
                 }
             } catch (error) {
-                console.error('签到失败：', error);
-                alert('网络错误，请重试！');
+                console.log('签到请求异常：', error);
+                alert('网络错误！请检查后端是否正常运行');
             }
-        });
+        }
+
+        function goBack() {
+            window.location.href = 'login.html';
+        }
     </script>
 </body>
 </html>
